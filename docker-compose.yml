@@ -1,0 +1,31 @@
+version: '3'
+
+services:
+  yolo-video-processor:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: yolo-video-processor
+    restart: unless-stopped
+    ports:
+      - "1935:1935"  # RTMP端口
+      - "8000:8000"  # API端口
+      - "8080:8080"  # Nginx HTTP端口
+    volumes:
+      - ./weights:/app/weights:ro  # 以只读方式挂载模型权重目录
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro  # Nginx配置文件
+      - nginx_log:/var/log/nginx  # Nginx日志目录
+      - nginx_run:/var/run  # Nginx运行目录
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+    # deploy:  # 部署 GPU
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu] 
+
+volumes:
+  nginx_log:
+  nginx_run: 
